@@ -26,8 +26,12 @@ meta = [
 
 # for both items and equipment...
 for params in meta:
-    with open(params["file"],'r') as file:
-        items=file.readlines()
+    try:
+        with open(params["file"],'r') as file:
+            items=file.readlines()
+    except FileNotFoundError:
+        print(f"Couldn't find {params['file']} in current directory.")
+        input("Are you sure you're running this in a subdirectory of /Risk of Rain 2/Risk of Rain 2_Data/StreamingAssets/Language?")
 
     # create a backup
     with open(f"b_{params['file']}",'w') as backupfile:
