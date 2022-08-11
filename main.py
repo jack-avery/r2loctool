@@ -75,7 +75,7 @@ class Application:
             }
         ]
 
-        langroot = f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/"
+        langroot = f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language"
 
         # for both items and equipment...
         for params in meta:
