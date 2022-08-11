@@ -1,5 +1,7 @@
 ## r2loctool
 
+[Download latest (.exe)](https://github.com/jack-avery/r2loctool/releases/latest/download/r2loctool.exe)
+
 Risk of Rain 2 utility to replace the basic pickup tooltips with the more informative entries from the logbook.
 
 Requires Python 3.10 or later.
@@ -20,3 +22,4 @@ python -m pip install pyinstaller
 
 ## todo
 - Detect when a version change has occurred, and do not recover from backup before acting
+- Act on all languages (only works on `en` currently)
