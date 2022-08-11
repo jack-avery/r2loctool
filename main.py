@@ -55,7 +55,6 @@ class Application:
         self.folder_button.destroy()
 
         self.log("Beginning...")
-
         # todo: reimplement restoring from backups...
         # self.log("Refreshing from backup if exists...")
         # for backup in ["Items", "Equipment"]:
@@ -76,11 +75,13 @@ class Application:
             }
         ]
 
+        langroot = f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/"
+
         # for both items and equipment...
         for params in meta:
             self.log(f"Reading {params['file']}...")
             try:
-                with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/{params['file']}", 'r') as file:
+                with open(f"{langroot}/en/{params['file']}", 'r') as file:
                     items = file.readlines()
             except FileNotFoundError:
                 self.log(f"Could not find {params['file']}...")
@@ -115,7 +116,7 @@ class Application:
                     itemPick = itemPick[1:]
 
             self.log(f"Writing to {params['file']}...")
-            with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/{params['file']}", 'w') as file:
+            with open(f"{langroot}/en/{params['file']}", 'w') as file:
                 file.writelines(items)
 
             self.log(f"{params['file']} completed successfully.")
