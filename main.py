@@ -1,7 +1,10 @@
 from tkinter import filedialog
 import tkinter as tk
 import fnmatch
-import os
+import re
+# import os
+
+ROR2_PATH_RE = re.compile(r"common[\/\\]Risk of Rain 2[\/\\]?$")
 
 
 class Application:
@@ -9,24 +12,26 @@ class Application:
         self.root = tk.Tk("r2loctool")
         self.root.geometry('480x240')
         self.root.title("r2loctool")
+        self.root.configure(bg="#222222")
         self.root.resizable(0, 0)
 
         # build UI
         self.folder_path = tk.StringVar()
 
         self.folder_button = tk.Button(
-            text="Browse...", command=self.get_folder)
+            text="Browse...", command=self.get_folder, bg="#222222", fg="white")
         self.folder_button.pack(anchor=tk.W, side=tk.TOP)
 
         self.folder_label = tk.Label(
-            master=self.root, textvariable=self.folder_path)
+            master=self.root, textvariable=self.folder_path, bg="#222222", fg="white")
         self.folder_label.pack(anchor=tk.W, side=tk.TOP)
 
-        self.infobox = tk.Listbox(self.root)
+        self.infobox = tk.Listbox(self.root, bg="#222222", fg="white")
         self.infobox.pack(fill=tk.BOTH, expand=1, side=tk.TOP)
 
         # build the go button but do not embed it for now.
-        self.go = tk.Button(text="Start", command=self.process)
+        self.go = tk.Button(
+            text="Start", command=self.process, bg="#004400", fg="white")
 
         # inform user they must select a directory
         self.log("Please select your Risk of Rain 2 directory.")
@@ -37,10 +42,13 @@ class Application:
         self.folder_path.set(filename)
 
         # validate it is a real RoR2 directory (basic validation)
-        if "common/Risk of Rain 2" in self.folder_path.get():
-            self.log(
-                "Valid directory selected. Click 'Start' to start the process.")
+        if len(ROR2_PATH_RE.findall(self.folder_path.get())) != 0:
+            self.log("Valid directory selected.")
             self.go.pack(side=tk.TOP, fill=tk.X)
+
+        else:
+            self.go.pack_forget()
+            self.log("Invalid directory.")
 
     def process(self):
         self.go.destroy()
@@ -112,6 +120,7 @@ class Application:
 
             self.log(f"{params['file']} completed successfully.")
 
+        self.log("")
         self.log("All done! You can now close this window.")
 
     def log(self, l: str):
