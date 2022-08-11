@@ -47,12 +47,14 @@ class Application:
         self.folder_button.destroy()
 
         self.log("Beginning...")
-        self.log("Refreshing from backup if exists...")
-        for backup in ["Items", "Equipment"]:
-            if os.path.isfile(os.path.join(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{backup}.txt")):
-                with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{backup}.txt", 'r') as back:
-                    with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/{backup}.txt", 'w') as file:
-                        file.writelines(back.readlines())
+
+        # todo: reimplement restoring from backups...
+        # self.log("Refreshing from backup if exists...")
+        # for backup in ["Items", "Equipment"]:
+        #     if os.path.isfile(os.path.join(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{backup}.txt")):
+        #         with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{backup}.txt", 'r') as back:
+        #             with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/{backup}.txt", 'w') as file:
+        #                 file.writelines(back.readlines())
 
         # define metadata for each file to perform replacements on
         meta = [
@@ -77,9 +79,9 @@ class Application:
                 break
 
             # create a backup
-            self.log(f"Backing up {params['file']} before continuing...")
-            with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{params['file']}", 'w') as backupfile:
-                backupfile.writelines(items)
+            # self.log(f"Backing up {params['file']} before continuing...")
+            # with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{params['file']}", 'w') as backupfile:
+            #     backupfile.writelines(items)
 
             # grab all of the valid lines
             self.log(

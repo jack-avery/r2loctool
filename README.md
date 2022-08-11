@@ -4,6 +4,13 @@ Risk of Rain 2 utility to replace the basic pickup tooltips with the more inform
 
 Requires Python 3.10 or later.
 
+## Reverting the Changes
+### Verify integrity of game files
+1. Right click on Risk of Rain 2 in your Steam library
+2. Click on Properties
+3. Click on "Local Files" on the left
+4. Click "Verify integrity of game files..."
+
 ## Building
 1. Install `pyinstaller`
 ```
