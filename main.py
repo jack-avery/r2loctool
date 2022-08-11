@@ -2,7 +2,6 @@ from tkinter import filedialog
 import tkinter as tk
 import fnmatch
 import os
-import time
 
 
 class Application:
