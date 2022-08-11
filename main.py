@@ -2,7 +2,7 @@ from tkinter import filedialog
 import tkinter as tk
 import fnmatch
 import re
-# import os
+import os
 
 ROR2_PATH_RE = re.compile(r"common[\/\\]Risk of Rain 2[\/\\]?$")
 
@@ -76,50 +76,55 @@ class Application:
         ]
 
         langroot = f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language"
+        langs = os.listdir(langroot)
+        self.log(f"Found folders for {len(langs)} langs: {', '.join(langs)}")
 
-        # for both items and equipment...
-        for params in meta:
-            self.log(f"Reading {params['file']}...")
-            try:
-                with open(f"{langroot}/en/{params['file']}", 'r') as file:
-                    items = file.readlines()
-            except FileNotFoundError:
-                self.log(f"Could not find {params['file']}...")
-                break
+        for lang in langs:
+            self.log(f"Working on {lang}...")
+            # for both items and equipment...
+            for params in meta:
+                try:
+                    with open(f"{langroot}/{lang}/{params['file']}", 'r') as file:
+                        self.log(f"Reading {params['file']}...")
+                        items = file.readlines()
+                except FileNotFoundError:
+                    self.log(
+                        f"Could not find {params['file']}, skipping...")
+                    break
 
-            # create a backup
-            # self.log(f"Backing up {params['file']} before continuing...")
-            # with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{params['file']}", 'w') as backupfile:
-            #     backupfile.writelines(items)
+                # create a backup
+                # self.log(f"Backing up {params['file']} before continuing...")
+                # with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{params['file']}", 'w') as backupfile:
+                #     backupfile.writelines(items)
 
-            # grab all of the valid lines
-            self.log(
-                f"Finding pickup and description entries for {params['pre']}s...")
-            itemPick = fnmatch.filter(items, f"*{params['pre']}_*_PICKUP*")
-            itemDesc = fnmatch.filter(items, f"*{params['pre']}_*_DESC*")
+                # grab all of the valid lines
+                self.log(
+                    f"Finding pickup and description entries for {params['pre']}s...")
+                itemPick = fnmatch.filter(items, f"*{params['pre']}_*_PICKUP*")
+                itemDesc = fnmatch.filter(items, f"*{params['pre']}_*_DESC*")
 
-            # replace "_DESC" for each logbook entry with "_PICKUP"
-            self.log(f"Processing replacements for {params['pre']}s...")
-            for i, item in enumerate(itemDesc):
-                itemDesc[i] = item.replace("DESC", "PICKUP")
+                # replace "_DESC" for each logbook entry with "_PICKUP"
+                self.log(f"Processing replacements for {params['pre']}s...")
+                for i, item in enumerate(itemDesc):
+                    itemDesc[i] = item.replace("DESC", "PICKUP")
 
-            # replace each "_PICKUP" with the new line
-            self.log(f"Replacing {params['pre']}s...")
-            for i, item in enumerate(items):
-                if item in itemPick:
-                    try:
-                        items[i] = itemDesc[0]
-                    except IndexError:
-                        break
+                # replace each "_PICKUP" with the new line
+                self.log(f"Replacing {params['pre']}s...")
+                for i, item in enumerate(items):
+                    if item in itemPick:
+                        try:
+                            items[i] = itemDesc[0]
+                        except IndexError:
+                            break
 
-                    itemDesc = itemDesc[1:]
-                    itemPick = itemPick[1:]
+                        itemDesc = itemDesc[1:]
+                        itemPick = itemPick[1:]
 
-            self.log(f"Writing to {params['file']}...")
-            with open(f"{langroot}/en/{params['file']}", 'w') as file:
-                file.writelines(items)
+                self.log(f"Writing to {params['file']}...")
+                with open(f"{langroot}/{lang}/{params['file']}", 'w') as file:
+                    file.writelines(items)
 
-            self.log(f"{params['file']} completed successfully.")
+                self.log(f"{params['file']} completed successfully.")
 
         self.log("")
         self.log("All done! You can now close this window.")
