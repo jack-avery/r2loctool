@@ -216,12 +216,10 @@ class Application:
         for i, d in enumerate(data):
             if d in dataPick:
                 try:
-                    data[i] = dataDesc[0]
+                    data[i] = dataDesc.pop(0)
+                    dataPick.pop(0)
                 except IndexError:
                     break
-
-                dataDesc = dataDesc[1:]
-                dataPick = dataPick[1:]
 
         # write and inform user file completed
         self.log(f"Writing to {params['file']}...")
