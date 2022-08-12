@@ -90,23 +90,6 @@ class Application:
             self.res.pack_forget()
             self.log("Invalid directory.")
 
-    def notify_begin(self):
-        """
-        Destroy the UI and notify the user that the process is beginning.
-        """
-        self.go.destroy()
-        self.folder_button.destroy()
-        self.res.destroy()
-        self.log("Beginning...")
-
-    def notify_end(self):
-        """
-        Notify the user that the workflow has completed and the app is safe to close.
-        """
-        self.log("")
-        self.log("----------------------------------------")
-        self.log("All done! You can now close this window.")
-
     def perform(self, type: str):
         match type:
             case "process":
@@ -114,7 +97,10 @@ class Application:
             case "restore":
                 func = self.restore_perfile
 
-        self.notify_begin()
+        self.go.destroy()
+        self.folder_button.destroy()
+        self.res.destroy()
+        self.log("Beginning...")
 
         for lang in self.langs:
             self.log("")
@@ -130,7 +116,9 @@ class Application:
 
             self.log(f"{lang} completed!")
 
-        self.notify_end()
+        self.log("")
+        self.log("----------------------------------------")
+        self.log("All done! You can now close this window.")
 
     def restore(self):
         """
