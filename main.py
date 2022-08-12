@@ -107,6 +107,8 @@ class Application:
                 self.log("Removing now redundant backup...")
                 os.remove(f"{self.langroot}/{lang}/b_{params['file']}")
 
+                self.log(f"{lang} completed")
+
         self.log("")
         self.log("----------------------------------------")
         self.log("All done! You can now close this window.")
@@ -166,8 +168,9 @@ class Application:
                 self.log(f"Writing to {params['file']}...")
                 with open(f"{self.langroot}/{lang}/{params['file']}", 'w') as file:
                     file.writelines(items)
-
                 self.log(f"{params['file']} completed successfully.")
+
+                self.log(f"{lang} completed")
 
         self.log("")
         self.log("----------------------------------------")
