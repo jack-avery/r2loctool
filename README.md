@@ -6,6 +6,15 @@
 
 ![r2loctool](https://user-images.githubusercontent.com/47289484/184267034-0ad2ba86-0953-4d41-8db3-70842ffe32b1.jpg)
 
+## Usage
+1. Download and open **r2loctool.exe**.
+2. Use the `Browse` button to find your Risk of Rain 2 folder.
+> This normally looks something like `[...]/steamapps/common/Risk of Rain 2`<br/>
+> You can find this directory for your installation under `Risk of Rain 2` -> `Properties` -> `Local Files` -> `Browse...` 
+3. Press `Start` to replace the pickup tooltips.
+
+The program will inform you when the process is complete and the app is safe to close.
+
 ## Restoring the Original Pickup Tooltips
 As of `v1.2.0`, **r2loctool** comes with its' own primitive backup system, but if that doesn't work, I recommend you:
 ### Verify integrity of game files
