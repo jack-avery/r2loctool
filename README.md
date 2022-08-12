@@ -4,9 +4,8 @@
 
 Risk of Rain 2 utility to replace the basic pickup tooltips with the more informative entries from the logbook.
 
-Requires Python 3.10 or later.
-
 ## Reverting the Changes
+As of `v1.2.0`, **r2loctool** comes with its' own primitive backup system, but if that doesn't work, I recommend you:
 ### Verify integrity of game files
 1. Right click on Risk of Rain 2 in your Steam library
 2. Click on Properties
@@ -14,12 +13,10 @@ Requires Python 3.10 or later.
 4. Click "Verify integrity of game files..."
 
 ## Building
+Requires Python 3.10 or later.
+
 1. Install `pyinstaller`
 ```
 python -m pip install pyinstaller
 ```
 2. Run `pyinstaller --onefile -n r2loctool --clean --noconsole main.py`
-
-## todo
-- Detect when a version change has occurred, and do not recover from backup before acting
-- Act on all languages (only works on `en` currently)
