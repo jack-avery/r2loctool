@@ -4,7 +4,19 @@ import fnmatch
 import re
 import os
 
-ROR2_PATH_RE = re.compile(r"common[\/\\]Risk of Rain 2[\/\\]?$")
+# regex to compare the directory to to validate it is the RoR2 root folder
+ROR2_PATH_RE = re.compile(r"common\/Risk of Rain 2$")
+# metadata for each file to perform replacements on
+meta = [
+    {
+        "file": "Items.txt",
+        "pre": "ITEM"
+    },
+    {
+        "file": "Equipment.txt",
+        "pre": "EQUIPMENT"
+    }
+]
 
 
 class Application:
@@ -63,18 +75,6 @@ class Application:
         #             with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/{backup}.txt", 'w') as file:
         #                 file.writelines(back.readlines())
 
-        # define metadata for each file to perform replacements on
-        meta = [
-            {
-                "file": "Items.txt",
-                "pre": "ITEM"
-            },
-            {
-                "file": "Equipment.txt",
-                "pre": "EQUIPMENT"
-            }
-        ]
-
         langroot = f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language"
         langs = os.listdir(langroot)
         self.log(f"Found folders for {len(langs)} langs: {', '.join(langs)}")
@@ -93,9 +93,9 @@ class Application:
                     break
 
                 # create a backup
-                # self.log(f"Backing up {params['file']} before continuing...")
-                # with open(f"{self.folder_path.get()}/Risk of Rain 2_Data/StreamingAssets/Language/en/b_{params['file']}", 'w') as backupfile:
-                #     backupfile.writelines(items)
+                self.log(f"Backing up {params['file']} before continuing...")
+                with open(f"{langroot}/{lang}/b_{params['file']}", 'w') as backupfile:
+                    backupfile.writelines(items)
 
                 # grab all of the valid lines
                 self.log(
