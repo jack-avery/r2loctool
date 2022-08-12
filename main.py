@@ -87,6 +87,7 @@ class Application:
         self.log("Beginning...")
 
         for lang in self.langs:
+            self.log("")
             self.log(f"Working on {lang}...")
 
             for params in meta:
@@ -107,6 +108,7 @@ class Application:
                 os.remove(f"{self.langroot}/{lang}/b_{params['file']}")
 
         self.log("")
+        self.log("----------------------------------------")
         self.log("All done! You can now close this window.")
 
     def process(self):
@@ -116,6 +118,7 @@ class Application:
         self.log("Beginning...")
 
         for lang in self.langs:
+            self.log("")
             self.log(f"Working on {lang}...")
             # for both items and equipment...
             for params in meta:
@@ -167,6 +170,7 @@ class Application:
                 self.log(f"{params['file']} completed successfully.")
 
         self.log("")
+        self.log("----------------------------------------")
         self.log("All done! You can now close this window.")
 
     def log(self, l: str):
