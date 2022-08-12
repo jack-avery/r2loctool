@@ -78,6 +78,7 @@ class Application:
 
         else:
             self.go.pack_forget()
+            self.res.pack_forget()
             self.log("Invalid directory.")
 
     def restore(self):
