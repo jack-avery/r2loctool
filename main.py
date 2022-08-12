@@ -1,13 +1,19 @@
-from tkinter import filedialog
-import tkinter as tk
-import fnmatch
-import re
+###
+#   r2loctool
+#   Jack Avery 2022
+###
 import os
+import re
+import fnmatch
+import tkinter as tk
+from tkinter import filedialog
+version = 'v1.2.2'
+
 
 # regex to compare the directory to to validate it is the RoR2 root folder
 ROR2_PATH_RE = re.compile(r"common\/Risk of Rain 2$")
 # metadata for each file to perform replacements on
-meta = [
+file_meta = [
     {
         "file": "Items.txt",
         "pre": "ITEM"
@@ -23,7 +29,7 @@ class Application:
     def __init__(self):
         self.root = tk.Tk("r2loctool")
         self.root.geometry('480x280')
-        self.root.title("r2loctool")
+        self.root.title(f"r2loctool {version}")
         self.root.configure(bg="#222222")
         self.root.resizable(0, 0)
 
@@ -54,6 +60,9 @@ class Application:
         tk.mainloop()
 
     def get_folder(self):
+        """
+        Open a folder query dialogue and check if it's valid and whether backups exist.
+        """
         filename = filedialog.askdirectory()
         self.folder_path.set(filename)
 
@@ -81,19 +90,45 @@ class Application:
             self.res.pack_forget()
             self.log("Invalid directory.")
 
-    def restore(self):
+    def notify_begin(self):
+        """
+        Destroy the UI and notify the user that the process is beginning.
+        """
         self.go.destroy()
         self.folder_button.destroy()
         self.res.destroy()
         self.log("Beginning...")
 
+    def notify_end(self):
+        """
+        Notify the user that the workflow has completed and the app is safe to close.
+        """
+        self.log("")
+        self.log("----------------------------------------")
+        self.log("All done! You can now close this window.")
+
+    def restore(self):
+        """
+        Begin the restoration workflow, restoring from backups.
+
+        This should only ever be possible if a backup exists.
+
+        See `get_folder()`.
+        """
+        self.notify_begin()
+
         for lang in self.langs:
             self.log("")
             self.log(f"Working on {lang}...")
 
-            for params in meta:
+            workdir = f"{self.langroot}/{lang}"
+
+            for params in file_meta:
+                datafile = f"{workdir}/{params['file']}"
+                backfile = f"{workdir}/b_{params['file']}"
+
                 try:
-                    with open(f"{self.langroot}/{lang}/b_{params['file']}", 'r') as file:
+                    with open(backfile, 'r') as file:
                         self.log(f"Reading b_{params['file']}...")
                         backup = file.readlines()
                 except FileNotFoundError:
@@ -102,82 +137,87 @@ class Application:
                     break
 
                 self.log(f"Writing to {params['file']}...")
-                with open(f"{self.langroot}/{lang}/{params['file']}", 'w') as file:
+                with open(datafile, 'w') as file:
                     file.writelines(backup)
 
                 self.log("Removing now redundant backup...")
-                os.remove(f"{self.langroot}/{lang}/b_{params['file']}")
+                os.remove(backfile)
 
-                self.log(f"{lang} completed")
+            self.log(f"{lang} completed!")
 
-        self.log("")
-        self.log("----------------------------------------")
-        self.log("All done! You can now close this window.")
+        self.notify_end()
 
     def process(self):
-        self.go.destroy()
-        self.folder_button.destroy()
-        self.res.destroy()
-        self.log("Beginning...")
+        """
+        Begin the normal pickup replacement workflow.
+        """
+        self.notify_begin()
 
         for lang in self.langs:
             self.log("")
             self.log(f"Working on {lang}...")
-            # for both items and equipment...
-            for params in meta:
+
+            workdir = f"{self.langroot}/{lang}"
+
+            for params in file_meta:
+                datafile = f"{workdir}/{params['file']}"
+                backfile = f"{workdir}/b_{params['file']}"
+
                 try:
-                    with open(f"{self.langroot}/{lang}/{params['file']}", 'r') as file:
+                    with open(datafile, 'r') as file:
                         self.log(f"Reading {params['file']}...")
-                        items = file.readlines()
+                        data = file.readlines()
                 except FileNotFoundError:
                     self.log(
                         f"Could not find {params['file']}, skipping...")
                     break
 
                 # backups
-                if os.path.isfile(f"{self.langroot}/{lang}/b_{params['file']}"):
+                if os.path.isfile(backfile):
                     self.log(f"Removing old {params['file']} backup...")
-                    os.remove(f"{self.langroot}/{lang}/b_{params['file']}")
+                    os.remove(backfile)
+
                 self.log(
                     f"Creating a backup {params['file']} before continuing...")
-                with open(f"{self.langroot}/{lang}/b_{params['file']}", 'w') as backupfile:
-                    backupfile.writelines(items)
+                with open(backfile, 'w') as backup:
+                    backup.writelines(data)
 
                 # grab all of the valid lines
                 self.log(
                     f"Finding pickup and description entries for {params['pre']}s...")
-                itemPick = fnmatch.filter(items, f"*{params['pre']}_*_PICKUP*")
-                itemDesc = fnmatch.filter(items, f"*{params['pre']}_*_DESC*")
+                dataPick = fnmatch.filter(data, f"*{params['pre']}_*_PICKUP*")
+                dataDesc = fnmatch.filter(data, f"*{params['pre']}_*_DESC*")
 
                 # replace "_DESC" for each logbook entry with "_PICKUP"
                 self.log(f"Processing replacements for {params['pre']}s...")
-                for i, item in enumerate(itemDesc):
-                    itemDesc[i] = item.replace("DESC", "PICKUP")
+                for i, d in enumerate(dataDesc):
+                    dataDesc[i] = d.replace("DESC", "PICKUP")
 
                 # replace each "_PICKUP" with the new line
                 self.log(f"Replacing {params['pre']}s...")
-                for i, item in enumerate(items):
-                    if item in itemPick:
+                for i, d in enumerate(data):
+                    if d in dataPick:
                         try:
-                            items[i] = itemDesc[0]
+                            data[i] = dataDesc[0]
                         except IndexError:
                             break
 
-                        itemDesc = itemDesc[1:]
-                        itemPick = itemPick[1:]
+                        dataDesc = dataDesc[1:]
+                        dataPick = dataPick[1:]
 
                 self.log(f"Writing to {params['file']}...")
-                with open(f"{self.langroot}/{lang}/{params['file']}", 'w') as file:
-                    file.writelines(items)
+                with open(datafile, 'w') as file:
+                    file.writelines(data)
                 self.log(f"{params['file']} completed successfully.")
 
-                self.log(f"{lang} completed")
+            self.log(f"{lang} completed!")
 
-        self.log("")
-        self.log("----------------------------------------")
-        self.log("All done! You can now close this window.")
+        self.notify_end()
 
     def log(self, l: str):
+        """
+        Log information to the info box and force the view to the bottom.
+        """
         self.infobox.insert(tk.END, f"{l}")
         self.infobox.yview(tk.END)
 
