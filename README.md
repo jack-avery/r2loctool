@@ -4,6 +4,8 @@
 
 Risk of Rain 2 utility to replace the basic pickup tooltips with the more informative entries from the logbook.
 
+![unknown](https://user-images.githubusercontent.com/47289484/184265517-7b36d422-5c72-4962-a6e2-45791db8118c.png)
+
 ## Reverting the Changes
 As of `v1.2.0`, **r2loctool** comes with its' own primitive backup system, but if that doesn't work, I recommend you:
 ### Verify integrity of game files
