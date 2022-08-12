@@ -2,9 +2,9 @@
 
 [Download latest (.exe)](https://github.com/jack-avery/r2loctool/releases/latest/download/r2loctool.exe)
 
-Risk of Rain 2 utility to replace the basic pickup tooltips with the more informative entries from the logbook.
+Risk of Rain 2 utility to replace the basic pickup tooltips with the more informative entries from the logbook. No mod loader (e.g. r2modman) required.
 
-![unknown](https://user-images.githubusercontent.com/47289484/184265517-7b36d422-5c72-4962-a6e2-45791db8118c.png)
+![Untitled](https://user-images.githubusercontent.com/47289484/184267034-0ad2ba86-0953-4d41-8db3-70842ffe32b1.jpg)
 
 ## Reverting the Changes
 As of `v1.2.0`, **r2loctool** comes with its' own primitive backup system, but if that doesn't work, I recommend you:
