@@ -107,6 +107,31 @@ class Application:
         self.log("----------------------------------------")
         self.log("All done! You can now close this window.")
 
+    def perform(self, type: str):
+        match type:
+            case "process":
+                func = self.process_perfile
+            case "restore":
+                func = self.restore_perfile
+
+        self.notify_begin()
+
+        for lang in self.langs:
+            self.log("")
+            self.log(f"Working on {lang}...")
+
+            workdir = f"{self.langroot}/{lang}"
+
+            for params in file_meta:
+                datafile = f"{workdir}/{params['file']}"
+                backfile = f"{workdir}/b_{params['file']}"
+
+                func(params, datafile, backfile)
+
+            self.log(f"{lang} completed!")
+
+        self.notify_end()
+
     def restore(self):
         """
         Begin the restoration workflow, restoring from backups.
@@ -115,104 +140,81 @@ class Application:
 
         See `get_folder()`.
         """
-        self.notify_begin()
-
-        for lang in self.langs:
-            self.log("")
-            self.log(f"Working on {lang}...")
-
-            workdir = f"{self.langroot}/{lang}"
-
-            for params in file_meta:
-                datafile = f"{workdir}/{params['file']}"
-                backfile = f"{workdir}/b_{params['file']}"
-
-                try:
-                    with open(backfile, 'r') as file:
-                        self.log(f"Reading b_{params['file']}...")
-                        backup = file.readlines()
-                except FileNotFoundError:
-                    self.log(
-                        f"Could not find b_{params['file']}, skipping...")
-                    break
-
-                self.log(f"Writing to {params['file']}...")
-                with open(datafile, 'w') as file:
-                    file.writelines(backup)
-
-                self.log("Removing now redundant backup...")
-                os.remove(backfile)
-
-            self.log(f"{lang} completed!")
-
-        self.notify_end()
+        self.perform("restore")
 
     def process(self):
         """
         Begin the normal pickup replacement workflow.
         """
-        self.notify_begin()
+        self.perform("process")
 
-        for lang in self.langs:
-            self.log("")
-            self.log(f"Working on {lang}...")
+    def restore_perfile(self, params, datafile: str, backfile: str):
+        try:
+            with open(backfile, 'r') as file:
+                self.log(f"Reading b_{params['file']}...")
+                backup = file.readlines()
+        except FileNotFoundError:
+            self.log(
+                f"Could not find b_{params['file']}, skipping...")
+            return
 
-            workdir = f"{self.langroot}/{lang}"
+        self.log(f"Writing to {params['file']}...")
+        with open(datafile, 'w') as file:
+            file.writelines(backup)
 
-            for params in file_meta:
-                datafile = f"{workdir}/{params['file']}"
-                backfile = f"{workdir}/b_{params['file']}"
+        self.log("Removing now redundant backup...")
+        os.remove(backfile)
 
+        self.log(f"{params['file']} completed successfully.")
+
+    def process_perfile(self, params: str, datafile: str, backfile: str):
+        try:
+            with open(datafile, 'r') as file:
+                self.log(f"Reading {params['file']}...")
+                data = file.readlines()
+        except FileNotFoundError:
+            self.log(
+                f"Could not find {params['file']}, skipping...")
+            return
+
+        # backups
+        if os.path.isfile(backfile):
+            self.log(f"Removing old {params['file']} backup...")
+            os.remove(backfile)
+
+        self.log(
+            f"Creating a backup {params['file']} before continuing...")
+        with open(backfile, 'w') as backup:
+            backup.writelines(data)
+
+        # grab all of the valid lines
+        self.log(
+            f"Finding pickup and description entries for {params['pre']}s...")
+        dataPick = fnmatch.filter(data, f"*{params['pre']}_*_PICKUP*")
+        dataDesc = fnmatch.filter(data, f"*{params['pre']}_*_DESC*")
+
+        # replace "_DESC" for each logbook entry with "_PICKUP"
+        self.log(f"Processing replacements for {params['pre']}s...")
+        for i, d in enumerate(dataDesc):
+            dataDesc[i] = d.replace("DESC", "PICKUP")
+
+        # replace each "_PICKUP" with the new line
+        self.log(f"Replacing {params['pre']}s...")
+        for i, d in enumerate(data):
+            if d in dataPick:
                 try:
-                    with open(datafile, 'r') as file:
-                        self.log(f"Reading {params['file']}...")
-                        data = file.readlines()
-                except FileNotFoundError:
-                    self.log(
-                        f"Could not find {params['file']}, skipping...")
+                    data[i] = dataDesc[0]
+                except IndexError:
                     break
 
-                # backups
-                if os.path.isfile(backfile):
-                    self.log(f"Removing old {params['file']} backup...")
-                    os.remove(backfile)
+                dataDesc = dataDesc[1:]
+                dataPick = dataPick[1:]
 
-                self.log(
-                    f"Creating a backup {params['file']} before continuing...")
-                with open(backfile, 'w') as backup:
-                    backup.writelines(data)
+        self.log(f"Writing to {params['file']}...")
+        with open(datafile, 'w') as file:
+            file.writelines(data)
 
-                # grab all of the valid lines
-                self.log(
-                    f"Finding pickup and description entries for {params['pre']}s...")
-                dataPick = fnmatch.filter(data, f"*{params['pre']}_*_PICKUP*")
-                dataDesc = fnmatch.filter(data, f"*{params['pre']}_*_DESC*")
-
-                # replace "_DESC" for each logbook entry with "_PICKUP"
-                self.log(f"Processing replacements for {params['pre']}s...")
-                for i, d in enumerate(dataDesc):
-                    dataDesc[i] = d.replace("DESC", "PICKUP")
-
-                # replace each "_PICKUP" with the new line
-                self.log(f"Replacing {params['pre']}s...")
-                for i, d in enumerate(data):
-                    if d in dataPick:
-                        try:
-                            data[i] = dataDesc[0]
-                        except IndexError:
-                            break
-
-                        dataDesc = dataDesc[1:]
-                        dataPick = dataPick[1:]
-
-                self.log(f"Writing to {params['file']}...")
-                with open(datafile, 'w') as file:
-                    file.writelines(data)
-                self.log(f"{params['file']} completed successfully.")
-
-            self.log(f"{lang} completed!")
-
-        self.notify_end()
+        self.log(f"{params['file']} completed successfully.")
 
     def log(self, l: str):
         """
