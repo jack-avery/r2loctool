@@ -4,13 +4,18 @@
 ###
 import os
 import re
-import fnmatch
 import tkinter as tk
 from tkinter import filedialog
-version = 'v1.2.3'
+version = 'v1.3.0'
 
 ROR2_PATH_RE = re.compile(r"common\/Risk of Rain 2$")
 """Regex to compare the user selected directory for loosely validating it's a RoR2 root folder"""
+
+DESC_RE = re.compile(r"([A-Z]+)_DESC\": \"([^\"]+)\",")
+"""Regex to find the logbook entries within a localization file."""
+
+PICKUP_RE = re.compile(r"([A-Z]+)_PICKUP\": \"([^\"]+)\",")
+"""Regex to find the pickup tooltips within a localization file."""
 
 
 class PerformanceType:
@@ -194,7 +199,7 @@ class Application:
         try:
             with open(datafile, 'r') as file:
                 self.log(f"Reading {params['file']}...")
-                data = file.readlines()
+                data = file.read()
         except FileNotFoundError:
             self.log(
                 f"Could not find {params['file']}, skipping...")
@@ -209,28 +214,21 @@ class Application:
         self.log(
             f"Creating a backup {params['file']} before continuing...")
         with open(backfile, 'w') as backup:
-            backup.writelines(data)
+            backup.write(data)
 
-        # grab all of the valid lines
+        # find entry names and strings
         self.log(
             f"Finding pickup and description entries for {params['pre']}s...")
-        dataPick = fnmatch.filter(data, f"*{params['pre']}_*_PICKUP*")
-        dataDesc = fnmatch.filter(data, f"*{params['pre']}_*_DESC*")
+        dataPick = {p[0]: p[1] for p in PICKUP_RE.findall(data)}
+        dataDesc = {d[0]: d[1] for d in DESC_RE.findall(data)}
 
-        # replace "_DESC" for each logbook entry with "_PICKUP"
+        # perform replacements of pickup strings with logbook entry strings
         self.log(f"Processing replacements for {params['pre']}s...")
-        for i, d in enumerate(dataDesc):
-            dataDesc[i] = d.replace("DESC", "PICKUP")
-
-        # replace each "_PICKUP" with the new line
-        self.log(f"Replacing {params['pre']}s...")
-        for i, d in enumerate(data):
-            if d in dataPick:
-                try:
-                    data[i] = dataDesc.pop(0)
-                    dataPick.pop(0)
-                except IndexError:
-                    break
+        for k in dataPick:
+            # only try to replace if it has a description,
+            # else we end up with the text being broken...
+            if k in dataDesc:
+                data = data.replace(dataPick[k], dataDesc[k])
 
         # write and inform user file completed
         self.log(f"Writing to {params['file']}...")
