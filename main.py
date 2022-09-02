@@ -14,7 +14,7 @@ ROR2_PATH_RE = re.compile(r"common\/Risk of Rain 2$")
 DESC_RE = re.compile(r"([A-Z]+)_DESC\"[ ]?:[ ]?\"([^\"]+)")
 """Regex to find the logbook entries within a localization file."""
 
-PICKUP_RE = re.compile(r"([A-Z]+)_DESC\"[ ]?:[ ]?\"([^\"]+)")
+PICKUP_RE = re.compile(r"([A-Z]+)_PICKUP\"[ ]?:[ ]?\"([^\"]+)")
 """Regex to find the pickup tooltips within a localization file."""
 
 
