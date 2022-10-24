@@ -6,7 +6,7 @@ import os
 import re
 import tkinter as tk
 from tkinter import filedialog
-version = 'v1.3.1'
+version = 'v1.3.2'
 
 ROR2_PATH_RE = re.compile(r"common\/Risk of Rain 2$")
 """Regex to compare the user selected directory for loosely validating it's a RoR2 root folder"""

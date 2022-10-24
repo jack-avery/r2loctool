@@ -24,7 +24,7 @@ As of `v1.2.0`, **r2loctool** comes with its' own primitive backup system, but i
 4. Click "Verify integrity of game files..."
 
 ## Building
-Requires **[Python 3.10](https://www.python.org/downloads/)** or later.
+Requires **[Python 3.11](https://www.python.org/downloads/)** or later.
 
 1. Install `pyinstaller`
 ```
